@@ -76,7 +76,8 @@ class StockPriceViewModel : ViewModel() {
                 openingPrice,
                 currentPrice,
                 dayHigh, dayLow,
-                closingPrice)
+                closingPrice,
+                !isMarketClosed())
     }
 
     @SuppressLint("SimpleDateFormat")

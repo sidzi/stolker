@@ -24,7 +24,10 @@ class StockPriceActivity : AppCompatActivity() {
                 ViewModelProviders.of(this)
                         .get(StockPriceViewModel::class.java)
         val alphaVantageWebService =
-                AlphaVantageWebService(RequestPlacer::placeRequest, ALPHA_VANTAGE_API_KEY)
+                AlphaVantageWebService(
+                        RequestPlacer::placeRequest,
+                        ALPHA_VANTAGE_API_KEY,
+                        RequestPlacer::cancelRequest)
         val stockPriceView = StockPriceView(cl_ticker_content)
         stockPriceViewModel.initialize(alphaVantageWebService)
                 .observe(this, stockPriceView)

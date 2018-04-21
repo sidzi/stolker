@@ -13,6 +13,10 @@ object RequestPlacer {
         requestQueue.addToRequestQueue(request, requestTag)
     }
 
+    fun cancelRequest(tag:String){
+        requestQueue.cancelRequestByTag(tag)
+    }
+
     fun init(context: Context) {
         requestQueue = RequestQueue(context)
     }

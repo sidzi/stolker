@@ -55,5 +55,10 @@
             android:layout_height="wrap_content"
             tools:text="1231" />
 
+        <TextView
+            android:id="@+id/tv_market_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
 </RelativeLayout>

@@ -18,6 +18,7 @@ class StockPriceView(override val containerView: View) : Observer<StockPriceView
         tv_highest_price.text = """Highest Price : ${viewData.highestPrice}"""
         tv_lowest_price.text = """Lowest Price : ${viewData.lowestPrice}"""
         tv_closing_price.text = """Closing Price : ${viewData.closingPrice}"""
+        tv_market_status.text = """Market ${if (viewData.marketStatus) "Open" else "Closed"}"""
         pb_loading.visibility = View.GONE
     }
 }

@@ -14,7 +14,7 @@ class AlphaVantageWebServiceTest {
 
     @Test
     fun loadPrice() {
-        val webService = AlphaVantageWebService(PlaceRequestTestDouble::placeRequest)
+        val webService = AlphaVantageWebService(PlaceRequestTestDouble::placeRequest, kFunction1 = RequestPlacer::cancelRequest)
         webService.loadPrice("?function=TIME_SERIES_INTRADAY&symbol=MSFT&interval=1min&apikey=demo")
         assert(webService.pricesData.value?.metadata?.interval == "1min",
                 { webService.pricesData.value?.metadata?.interval ?: "null" })

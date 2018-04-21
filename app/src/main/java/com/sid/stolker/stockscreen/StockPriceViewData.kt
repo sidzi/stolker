@@ -6,5 +6,6 @@ data class StockPriceViewData(
         var currentPrice: String,
         var highestPrice: String,
         var lowestPrice: String,
-        var closingPrice: String?
+        var closingPrice: String?,
+        var marketStatus:Boolean
 )
