@@ -51,6 +51,7 @@ class StockPriceViewModel : ViewModel() {
     private fun hasMarketClosed(): Boolean = if (closingTime != null) !Date().before(closingTime) else false
 
     private fun transformToViewData(data: StockPriceDataModel): StockPriceViewData? {
+        val stockName = data.metadata.symbol
         val timeSeriesToday = stripOtherDays(data.timeSeries)
         if (timeSeriesToday.isEmpty()) return null
 
@@ -63,6 +64,7 @@ class StockPriceViewModel : ViewModel() {
             null
 
         return StockPriceViewData(
+                stockName,
                 openingPrice,
                 currentPrice,
                 dayHigh, dayLow,
@@ -72,7 +74,7 @@ class StockPriceViewModel : ViewModel() {
     @SuppressLint("SimpleDateFormat")
     private fun stripOtherDays(timeSeries: Map<String, TimeSeriesData>): ArrayList<TimeSeriesData> {
         val dateFormatter = SimpleDateFormat("yyyy-MM-dd")
-        val todayMatcher = /*todo dateFormatter.format(Date())*/"2018-04-20"
+        val todayMatcher = dateFormatter.format(Date())/*"2018-04-20"*/
         val strippedList = ArrayList<TimeSeriesData>()
         for (time in timeSeries) {
             if (time.key.startsWith(todayMatcher))
