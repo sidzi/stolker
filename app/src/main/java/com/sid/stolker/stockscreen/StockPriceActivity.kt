@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import com.sid.stolker.R
-import com.sid.stolker.network.AlphaVantageWebService
+import com.sid.stolker.alphavantage.AlphaVantageWebService
 import com.sid.stolker.network.RequestPlacer
 import kotlinx.android.synthetic.main.activity_ticker.*
 import kotlinx.android.synthetic.main.content_ticker.*
@@ -21,10 +21,10 @@ class StockPriceActivity : AppCompatActivity() {
         stockPriceViewModel =
                 ViewModelProviders.of(this)
                         .get(StockPriceViewModel::class.java)
-        val alphaVantageWebService = AlphaVantageWebService(RequestPlacer.requestQueue)
+        val alphaVantageWebService = AlphaVantageWebService(RequestPlacer::placeRequest)
         val stockPriceView = StockPriceView(cl_ticker_content)
         stockPriceViewModel.initialize(alphaVantageWebService).observe(this, stockPriceView)
-        stockPriceViewModel.loadPrices("INR")
+        stockPriceViewModel.loadIntraDayPrices("INR")
     }
 
 
