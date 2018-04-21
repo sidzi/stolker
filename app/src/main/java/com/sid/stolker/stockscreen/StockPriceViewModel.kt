@@ -5,6 +5,7 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
 import android.arch.lifecycle.ViewModel
+import android.os.Handler
 import com.sid.stolker.alphavantage.AVFunctions
 import com.sid.stolker.alphavantage.AVQueryBuilder
 import com.sid.stolker.alphavantage.AlphaVantageWebService
@@ -15,23 +16,39 @@ import java.util.*
 
 class StockPriceViewModel : ViewModel() {
     private lateinit var alphaVantageWebService: AlphaVantageWebService
-    private lateinit var closingTime: Date
+    private var closingTime: Date? = null
+
+    companion object {
+        private const val POLLING_TIME = 1000 * 10 * 1L
+    }
 
     fun initialize(alphaVantageWebService: AlphaVantageWebService): LiveData<StockPriceViewData> {
         this.alphaVantageWebService = alphaVantageWebService
-        return Transformations.switchMap(alphaVantageWebService.pricesData,
-                {
-                    val viewData = MutableLiveData<StockPriceViewData>()
-                    viewData.value = transformToViewData(it)
-                    viewData
-                }
-        )
+        return Transformations.switchMap(alphaVantageWebService.pricesData, {
+            val viewData = MutableLiveData<StockPriceViewData>()
+            viewData.value = transformToViewData(it)
+            viewData
+        })
     }
 
-    fun loadIntraDayPrices(stockName: String) {
+    fun startIntradayPriceLoading(stockName: String) {
         val query = AVQueryBuilder(AVFunctions.TIME_SERIES_INTRADAY, stockName).build()
-        alphaVantageWebService.loadPrice(query)
+
+        if (!hasMarketClosed())
+            alphaVantageWebService.loadPrice(query)
+
+        val handler = Handler()
+        val runnable = object : Runnable {
+            override fun run() {
+                if (!hasMarketClosed())
+                    alphaVantageWebService.loadPrice(query)
+                handler.postDelayed(this, POLLING_TIME)
+            }
+        }
+        handler.postDelayed(runnable, POLLING_TIME)
     }
+
+    private fun hasMarketClosed(): Boolean = if (closingTime != null) !Date().before(closingTime) else false
 
     private fun transformToViewData(data: StockPriceDataModel): StockPriceViewData? {
         val timeSeriesToday = stripOtherDays(data.timeSeries)
@@ -51,8 +68,6 @@ class StockPriceViewModel : ViewModel() {
                 dayHigh, dayLow,
                 closingPrice)
     }
-
-    private fun hasMarketClosed(): Boolean = !Date().before(closingTime)
 
     @SuppressLint("SimpleDateFormat")
     private fun stripOtherDays(timeSeries: Map<String, TimeSeriesData>): ArrayList<TimeSeriesData> {

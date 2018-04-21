@@ -27,7 +27,7 @@ class StockPriceActivity : AppCompatActivity() {
         val stockPriceView = StockPriceView(cl_ticker_content)
         stockPriceViewModel.initialize(alphaVantageWebService)
                 .observe(this, stockPriceView)
-        stockPriceViewModel.loadIntraDayPrices("GOOG")
+        stockPriceViewModel.startIntradayPriceLoading("GOOG")
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
