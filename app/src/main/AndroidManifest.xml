@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.sid.stolker">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:name=".Stolker"
         android:allowBackup="true"
