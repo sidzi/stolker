@@ -21,5 +21,9 @@ data class TimeSeriesData(
         @Json(name = "1. open")
         val open: String,
         @Json(name = "2. high")
-        val high: String
+        val high: String,
+        @Json(name = "3. low")
+        val low: String,
+        @Json(name = "4. close")
+        val close: String
 )

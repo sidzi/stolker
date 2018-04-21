@@ -1,5 +1,6 @@
 package com.sid.stolker.stockscreen
 
+import android.annotation.SuppressLint
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
@@ -9,6 +10,7 @@ import com.sid.stolker.alphavantage.AVQueryBuilder
 import com.sid.stolker.alphavantage.AlphaVantageWebService
 import com.sid.stolker.models.StockPriceDataModel
 import com.sid.stolker.models.TimeSeriesData
+import java.text.SimpleDateFormat
 
 class StockPriceViewModel : ViewModel() {
     private lateinit var alphaVantageWebService: AlphaVantageWebService
@@ -29,17 +31,47 @@ class StockPriceViewModel : ViewModel() {
         alphaVantageWebService.loadPrice(query)
     }
 
-    private fun transformToViewData(data: StockPriceDataModel): StockPriceViewData {
-        val dayHigh = findDayHigh(data.timeSeries)
-        return StockPriceViewData(data.timeSeries.entries.first().value.open, "", "$dayHigh", "", "")
+    private fun transformToViewData(data: StockPriceDataModel): StockPriceViewData? {
+        val timeSeriesToday = stripOtherDays(data.timeSeries)
+        if (timeSeriesToday.isEmpty()) return null
+
+        val (dayHigh, dayLow) = findDayHighAndLow(timeSeriesToday)
+        val openingPrice = timeSeriesToday.entries.last().value.open
+        val currentPrice = timeSeriesToday.entries.first().value.close
+        val closingPrice = if (hasMarketClosed())
+            timeSeriesToday.entries.first().value.close
+        else
+            null
+
+        return StockPriceViewData(
+                openingPrice,
+                currentPrice,
+                dayHigh, dayLow,
+                closingPrice)
     }
 
-    private fun findDayHigh(timeSeries: Map<String, TimeSeriesData>): Any {
-        return timeSeries.values.reduce { acc: TimeSeriesData, timeSeriesData: TimeSeriesData ->
-            if (acc.high.toFloat() > timeSeriesData.high.toFloat())
-                acc
-            else
-                timeSeriesData
-        }.high
+    private fun hasMarketClosed(): Boolean = true /*find open/closing times by tracking day change*/
+
+    @SuppressLint("SimpleDateFormat")
+    private fun stripOtherDays(timeSeries: Map<String, TimeSeriesData>): Map<String, TimeSeriesData> {
+        val dateFormatter = SimpleDateFormat("yyyy-MM-dd")
+        val todayMatcher = /*dateFormatter.format(Date())*/"2018-04-20"
+        return timeSeries.filterKeys {
+            it.startsWith(todayMatcher)
+        }
+    }
+
+    private fun findDayHighAndLow(timeSeries: Map<String, TimeSeriesData>): Pair<String, String> {
+        var min = Float.MAX_VALUE
+        var max = Float.MIN_VALUE
+        timeSeries.values.forEach {
+            val low = it.low.toFloat()
+            val high = it.high.toFloat()
+            if (low < min)
+                min = low
+            if (high > max)
+                max = high
+        }
+        return Pair("%.4f".format(max), "%.4f".format(min))
     }
 }

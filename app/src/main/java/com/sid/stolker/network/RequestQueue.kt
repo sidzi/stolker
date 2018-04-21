@@ -5,6 +5,7 @@ import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.Volley
+import com.readystatesoftware.chuck.ChuckInterceptor
 import okhttp3.Cache
 import okhttp3.OkHttpClient
 
@@ -13,6 +14,7 @@ class RequestQueue(applicationContext: Context) {
 
     init {
         val client = OkHttpClient.Builder()
+                .addNetworkInterceptor(ChuckInterceptor(applicationContext))
                 .cache(Cache(applicationContext.cacheDir, CACHE_SIZE_BYTES))
                 .build()
         mRequestQueue = Volley.newRequestQueue(applicationContext,
@@ -32,7 +34,7 @@ class RequestQueue(applicationContext: Context) {
     companion object {
         private val REQUEST_RETRY_POLICY = DefaultRetryPolicy(
                 DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                3,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)
 
         private const val CACHE_SIZE_BYTES = 1024 * 1024 * 2L

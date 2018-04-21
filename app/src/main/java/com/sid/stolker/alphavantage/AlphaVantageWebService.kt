@@ -14,7 +14,6 @@ class AlphaVantageWebService(
     fun loadPrice(getQuery: String) {
         val requestUrl = "$BASE_URL$getQuery&apikey=$apiKey"
         placeRequest(REQUEST_TAG_LP, requestUrl, Response.Listener {
-            System.out.println(it)
             val response = MoshiSerializer.serialize(StockPriceDataModel::class.java, it) as StockPriceDataModel?
             pricesData.value = response
         }, Response.ErrorListener {
