@@ -7,6 +7,7 @@ import android.view.Menu
 import android.view.MenuItem
 import com.sid.stolker.R
 import com.sid.stolker.alphavantage.AlphaVantageWebService
+import com.sid.stolker.alphavantage.Constants.ALPHA_VANTAGE_API_KEY
 import com.sid.stolker.network.RequestPlacer
 import kotlinx.android.synthetic.main.activity_ticker.*
 import kotlinx.android.synthetic.main.content_ticker.*
@@ -21,12 +22,13 @@ class StockPriceActivity : AppCompatActivity() {
         stockPriceViewModel =
                 ViewModelProviders.of(this)
                         .get(StockPriceViewModel::class.java)
-        val alphaVantageWebService = AlphaVantageWebService(RequestPlacer::placeRequest)
+        val alphaVantageWebService =
+                AlphaVantageWebService(RequestPlacer::placeRequest, ALPHA_VANTAGE_API_KEY)
         val stockPriceView = StockPriceView(cl_ticker_content)
-        stockPriceViewModel.initialize(alphaVantageWebService).observe(this, stockPriceView)
-        stockPriceViewModel.loadIntraDayPrices("INR")
+        stockPriceViewModel.initialize(alphaVantageWebService)
+                .observe(this, stockPriceView)
+        stockPriceViewModel.loadIntraDayPrices("GOOG")
     }
-
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_ticker, menu)

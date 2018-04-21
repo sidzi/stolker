@@ -5,7 +5,7 @@ import com.squareup.moshi.Json
 data class StockPriceDataModel(
         @Json(name = "Meta Data")
         val metadata: MetaData,
-        @Json(name = "Time Series (1min)")
+        @Json(name = "Time Series (5min)")
         val timeSeries: Map<String, TimeSeriesData>
 )
 
@@ -19,5 +19,7 @@ data class MetaData(
 
 data class TimeSeriesData(
         @Json(name = "1. open")
-        val open: String
+        val open: String,
+        @Json(name = "2. high")
+        val high: String
 )

@@ -8,6 +8,7 @@ import com.sid.stolker.alphavantage.AVFunctions
 import com.sid.stolker.alphavantage.AVQueryBuilder
 import com.sid.stolker.alphavantage.AlphaVantageWebService
 import com.sid.stolker.models.StockPriceDataModel
+import com.sid.stolker.models.TimeSeriesData
 
 class StockPriceViewModel : ViewModel() {
     private lateinit var alphaVantageWebService: AlphaVantageWebService
@@ -28,7 +29,17 @@ class StockPriceViewModel : ViewModel() {
         alphaVantageWebService.loadPrice(query)
     }
 
-    private fun transformToViewData(dataModel: StockPriceDataModel): StockPriceViewData {
-        return StockPriceViewData(dataModel.timeSeries.entries.first().value.open, "", "", "", "")
+    private fun transformToViewData(data: StockPriceDataModel): StockPriceViewData {
+        val dayHigh = findDayHigh(data.timeSeries)
+        return StockPriceViewData(data.timeSeries.entries.first().value.open, "", "$dayHigh", "", "")
+    }
+
+    private fun findDayHigh(timeSeries: Map<String, TimeSeriesData>): Any {
+        return timeSeries.values.reduce { acc: TimeSeriesData, timeSeriesData: TimeSeriesData ->
+            if (acc.high.toFloat() > timeSeriesData.high.toFloat())
+                acc
+            else
+                timeSeriesData
+        }.high
     }
 }
