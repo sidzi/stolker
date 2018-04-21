@@ -11,9 +11,11 @@ import com.sid.stolker.alphavantage.AlphaVantageWebService
 import com.sid.stolker.models.StockPriceDataModel
 import com.sid.stolker.models.TimeSeriesData
 import java.text.SimpleDateFormat
+import java.util.*
 
 class StockPriceViewModel : ViewModel() {
     private lateinit var alphaVantageWebService: AlphaVantageWebService
+    private lateinit var closingTime: Date
 
     fun initialize(alphaVantageWebService: AlphaVantageWebService): LiveData<StockPriceViewData> {
         this.alphaVantageWebService = alphaVantageWebService
@@ -36,10 +38,10 @@ class StockPriceViewModel : ViewModel() {
         if (timeSeriesToday.isEmpty()) return null
 
         val (dayHigh, dayLow) = findDayHighAndLow(timeSeriesToday)
-        val openingPrice = timeSeriesToday.entries.last().value.open
-        val currentPrice = timeSeriesToday.entries.first().value.close
+        val openingPrice = timeSeriesToday.last().open
+        val currentPrice = timeSeriesToday.first().close
         val closingPrice = if (hasMarketClosed())
-            timeSeriesToday.entries.first().value.close
+            timeSeriesToday.first().close
         else
             null
 
@@ -50,21 +52,29 @@ class StockPriceViewModel : ViewModel() {
                 closingPrice)
     }
 
-    private fun hasMarketClosed(): Boolean = true /*find open/closing times by tracking day change*/
+    private fun hasMarketClosed(): Boolean = !Date().before(closingTime)
 
     @SuppressLint("SimpleDateFormat")
-    private fun stripOtherDays(timeSeries: Map<String, TimeSeriesData>): Map<String, TimeSeriesData> {
+    private fun stripOtherDays(timeSeries: Map<String, TimeSeriesData>): ArrayList<TimeSeriesData> {
         val dateFormatter = SimpleDateFormat("yyyy-MM-dd")
-        val todayMatcher = /*dateFormatter.format(Date())*/"2018-04-20"
-        return timeSeries.filterKeys {
-            it.startsWith(todayMatcher)
+        val todayMatcher = /*todo dateFormatter.format(Date())*/"2018-04-20"
+        val strippedList = ArrayList<TimeSeriesData>()
+        for (time in timeSeries) {
+            if (time.key.startsWith(todayMatcher))
+                strippedList.add(time.value)
+            else {
+                val timeFormat = SimpleDateFormat("hh:mm:ss")
+                closingTime = timeFormat.parse(time.key.split(" ")[1])
+                break
+            }
         }
+        return strippedList
     }
 
-    private fun findDayHighAndLow(timeSeries: Map<String, TimeSeriesData>): Pair<String, String> {
+    private fun findDayHighAndLow(timeSeries: ArrayList<TimeSeriesData>): Pair<String, String> {
         var min = Float.MAX_VALUE
         var max = Float.MIN_VALUE
-        timeSeries.values.forEach {
+        timeSeries.forEach {
             val low = it.low.toFloat()
             val high = it.high.toFloat()
             if (low < min)
