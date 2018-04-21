@@ -13,10 +13,11 @@ class StockPriceView(override val containerView: View) : Observer<StockPriceView
     override fun onChanged(viewData: StockPriceViewData?) {
         if (viewData == null) return
         tv_stock_name.text = viewData.stockName
-        tv_closing_price.text = """Closing Price : ${viewData.closingPrice}"""
+        tv_opening_price.text = """Opening Price : ${viewData.openPrice}"""
         tv_current_price.text = """Current Price : ${viewData.currentPrice}"""
         tv_highest_price.text = """Highest Price : ${viewData.highestPrice}"""
         tv_lowest_price.text = """Lowest Price : ${viewData.lowestPrice}"""
-        tv_open_price.text = """Opening Price : ${viewData.openPrice}"""
+        tv_closing_price.text = """Closing Price : ${viewData.closingPrice}"""
+        pb_loading.visibility = View.GONE
     }
 }

@@ -14,6 +14,7 @@ import kotlinx.android.synthetic.main.content_ticker.*
 
 class StockPriceActivity : AppCompatActivity() {
 
+    private var currentStock = "GOOG"
     private lateinit var stockPriceViewModel: StockPriceViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +28,7 @@ class StockPriceActivity : AppCompatActivity() {
         val stockPriceView = StockPriceView(cl_ticker_content)
         stockPriceViewModel.initialize(alphaVantageWebService)
                 .observe(this, stockPriceView)
-        stockPriceViewModel.startIntradayPriceLoading("GOOG")
+        stockPriceViewModel.startIntradayPriceLoading(currentStock)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
