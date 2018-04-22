@@ -19,6 +19,7 @@ class AlphaVantageWebService(
         cancelRequest?.invoke(REQUEST_TAG_LP)
         placeRequest(REQUEST_TAG_LP, requestUrl, Response.Listener {
             try {
+                System.out.println(it)
                 val response = MoshiSerializer.serialize(StockPriceDataModel::class.java, it) as StockPriceDataModel?
                 pricesData.value = response
             } catch (e: JsonDataException) {
