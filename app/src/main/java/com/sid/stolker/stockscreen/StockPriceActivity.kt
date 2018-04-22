@@ -12,13 +12,13 @@ import com.sid.stolker.R
 import com.sid.stolker.alphavantage.AlphaVantageWebService
 import com.sid.stolker.alphavantage.Constants.ALPHA_VANTAGE_API_KEY
 import com.sid.stolker.network.RequestPlacer
+import com.sid.stolker.persistence.SharedPreferencesLoader
 import com.sid.stolker.settings.SettingsActivity
 import kotlinx.android.synthetic.main.activity_ticker.*
 import kotlinx.android.synthetic.main.content_ticker.*
 
 class StockPriceActivity : AppCompatActivity() {
 
-    private var currentStock = "GOOG"
     private lateinit var stockPriceViewModel: StockPriceViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +35,16 @@ class StockPriceActivity : AppCompatActivity() {
         val stockPriceView = StockPriceView(cl_ticker_content)
         stockPriceViewModel.getData()
                 .observe(this, stockPriceView)
-        stockPriceViewModel.startIntradayPriceLoading(currentStock)
+
+
+        val savedSymbol = SharedPreferencesLoader.getSavedStockSymbol(this)
+        startLoading(savedSymbol ?: DEFAULT_SYMBOL)
+    }
+
+    private lateinit var currentStock: String
+    private fun startLoading(stockSymbol: String) {
+        currentStock = stockSymbol
+        stockPriceViewModel.startIntradayPriceLoading(stockSymbol)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -59,12 +68,13 @@ class StockPriceActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK)
             data?.getStringExtra(IntentConstants.STOCK_SYMBOL)?.let {
-                currentStock = it
-                stockPriceViewModel.startIntradayPriceLoading(currentStock)
+                startLoading(it)
+                SharedPreferencesLoader.saveStockSymbol(this, it)
             }
     }
 
     companion object {
         private const val REQUEST_CODE = 10001
+        private const val DEFAULT_SYMBOL = "GOOG"
     }
 }
