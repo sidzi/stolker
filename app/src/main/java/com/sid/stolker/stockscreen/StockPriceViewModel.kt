@@ -16,8 +16,7 @@ import java.util.*
 
 class StockPriceViewModel : ViewModel() {
     private lateinit var alphaVantageWebService: AlphaVantageWebService
-    private var closingTime: Date? = null
-    private var openingTime: Date? = null
+    private var marketClosed = false
 
     companion object {
         private const val POLLING_TIME = 1000 * 10 * 1L
@@ -49,20 +48,13 @@ class StockPriceViewModel : ViewModel() {
         handler.postDelayed(runnable, POLLING_TIME)
     }
 
-    private fun isMarketClosed(): Boolean {
-        return when {
-            closingTime == null || openingTime == null -> false
-            Date().before(closingTime) -> false
-            Date().after(openingTime) -> false
-            else -> true
-        }
-    }
+    private fun isMarketClosed(): Boolean = marketClosed
 
     private fun transformToViewData(data: StockPriceDataModel): StockPriceViewData? {
         val stockName = data.metadata.symbol
+        marketClosed = checkIfMarketHasClosed(data.timeSeries.entries.first())
         val timeSeriesToday = stripOtherDays(data.timeSeries)
         if (timeSeriesToday.isEmpty()) return null
-
         val (dayHigh, dayLow) = findDayHighAndLow(timeSeriesToday)
         val openingPrice = timeSeriesToday.last().open
         val currentPrice = timeSeriesToday.first().close
@@ -81,6 +73,16 @@ class StockPriceViewModel : ViewModel() {
     }
 
     @SuppressLint("SimpleDateFormat")
+    private fun checkIfMarketHasClosed(firstEntry: Map.Entry<String, TimeSeriesData>): Boolean {
+        val timeFormat = SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
+        val recentMostTime = timeFormat.parse(firstEntry.key)
+        val cal = Calendar.getInstance()
+        cal.add(Calendar.MINUTE, -6)
+        val date = cal.time
+        return recentMostTime.before(date)
+    }
+
+    @SuppressLint("SimpleDateFormat")
     private fun stripOtherDays(timeSeries: Map<String, TimeSeriesData>): ArrayList<TimeSeriesData> {
         val dateFormatter = SimpleDateFormat("yyyy-MM-dd")
         val todayMatcher = /* todo dateFormatter.format(Date())*/"2018-04-20"
@@ -88,12 +90,8 @@ class StockPriceViewModel : ViewModel() {
         for (time in timeSeries) {
             if (time.key.startsWith(todayMatcher))
                 strippedList.add(time.value)
-            else {
-                val timeFormat = SimpleDateFormat("hh:mm:ss")
-                closingTime = timeFormat.parse("16:00:00")/*timeFormat.parse(time.key.split(" ")[1])*/
-                openingTime = timeFormat.parse("09:30:00")/*todo*/
+            else
                 break
-            }
         }
         return strippedList
     }
