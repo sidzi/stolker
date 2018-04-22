@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Stolker</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="enter_stock_symbol">Enter Stock Symbol</string>
+    <string name="change_stock">Change Stock</string>
 </resources>

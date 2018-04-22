@@ -17,6 +17,7 @@ import java.util.*
 class StockPriceViewModel : ViewModel() {
     private lateinit var alphaVantageWebService: AlphaVantageWebService
     private var marketClosed = false
+    private var cachedStockQuery: String? = null
 
     companion object {
         private const val POLLING_TIME = 1000 * 10 * 1L
@@ -31,21 +32,23 @@ class StockPriceViewModel : ViewModel() {
         })
     }
 
+    val handler = Handler()
     fun startIntradayPriceLoading(stockName: String) {
         val query = AVQueryBuilder(AVFunctions.TIME_SERIES_INTRADAY, stockName).build()
 
-        if (!isMarketClosed())
+        if (!isMarketClosed() || query != cachedStockQuery) {
             alphaVantageWebService.loadPrice(query)
-
-        val handler = Handler()
-        val runnable = object : Runnable {
-            override fun run() {
-                if (!isMarketClosed())
-                    alphaVantageWebService.loadPrice(query)
-                handler.postDelayed(this, POLLING_TIME)
+            cachedStockQuery = query
+            handler.removeCallbacksAndMessages(null)
+            val runnable = object : Runnable {
+                override fun run() {
+                    if (!isMarketClosed())
+                        alphaVantageWebService.loadPrice(query)
+                    handler.postDelayed(this, POLLING_TIME)
+                }
             }
+            handler.postDelayed(runnable, POLLING_TIME)
         }
-        handler.postDelayed(runnable, POLLING_TIME)
     }
 
     private fun isMarketClosed(): Boolean = marketClosed
