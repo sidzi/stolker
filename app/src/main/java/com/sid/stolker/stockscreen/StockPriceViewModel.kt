@@ -58,7 +58,8 @@ class StockPriceViewModel(
             }
             handler.postDelayed(runnable, POLLING_TIME)
         } else {
-            alphaVantageWebService.pricesData.value = alphaVantageWebService.pricesData.value
+            if (alphaVantageWebService.pricesData.value != null)
+                alphaVantageWebService.pricesData.value = alphaVantageWebService.pricesData.value
         }
     }
 
@@ -77,13 +78,18 @@ class StockPriceViewModel(
         else
             null
 
+        val dataPoints = timeSeriesToday.map {
+            it.open.toFloat()
+        }.asReversed()
+
         return StockPriceViewData(
                 stockName,
                 openingPrice,
                 currentPrice,
                 dayHigh, dayLow,
                 closingPrice,
-                !isMarketClosed())
+                !isMarketClosed(),
+                dataPoints)
     }
 
     @SuppressLint("SimpleDateFormat")
@@ -125,6 +131,6 @@ class StockPriceViewModel(
     }
 
     companion object {
-        private const val POLLING_TIME = 1000 * 10 * 1L
+        private const val POLLING_TIME = 1000 * 30 * 1L
     }
 }

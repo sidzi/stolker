@@ -21,6 +21,7 @@ import kotlinx.android.synthetic.main.content_ticker.*
 class StockPriceActivity : AppCompatActivity() {
 
     private lateinit var stockPriceViewModel: StockPriceViewModel
+    private lateinit var stockPriceView: StockPriceView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ticker)
@@ -38,18 +39,20 @@ class StockPriceActivity : AppCompatActivity() {
         stockPriceViewModel =
                 ViewModelProviders.of(this, stockViewModelFactory)
                         .get(StockPriceViewModel::class.java)
-        val stockPriceView = StockPriceView(cl_ticker_content)
+
+        val graphAdapter = GraphAdapter()
+        stockPriceView = StockPriceView(cl_ticker_content, graphAdapter)
         stockPriceViewModel.getData()
                 .observe(this, stockPriceView)
 
-        val savedSymbol = SharedPreferencesLoader.getSavedStockSymbol(this)
-        startLoading(savedSymbol ?: DEFAULT_SYMBOL)
+        startLoading(SharedPreferencesLoader.getSavedStockSymbol(this) ?: DEFAULT_SYMBOL)
     }
 
     private lateinit var currentStock: String
     private fun startLoading(stockSymbol: String) {
         currentStock = stockSymbol
         stockPriceViewModel.startIntradayPriceLoading(stockSymbol)
+        stockPriceView.loadingStart()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

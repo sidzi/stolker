@@ -52,6 +52,7 @@ internal class OkHttpStack(private val mClient: OkHttpClient) : BaseHttpStack() 
         val okHttpRequestBuilder = okhttp3.Request.Builder()
         okHttpRequestBuilder.url(request.url)
         val headers = request.headers
+        /*headers["Cache-Control"] = "no-cache"*/
         headers.forEach {
             okHttpRequestBuilder.addHeader(it.key, it.value)
         }

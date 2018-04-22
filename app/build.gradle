@@ -39,6 +39,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
     implementation 'com.squareup.moshi:moshi:1.5.0'
     implementation 'com.squareup.moshi:moshi-kotlin:1.5.0'
+    implementation 'com.robinhood.spark:spark:1.2.0'
     debugImplementation 'com.readystatesoftware.chuck:library:1.1.0'
     releaseImplementation 'com.readystatesoftware.chuck:library-no-op:1.1.0'
     testImplementation 'junit:junit:4.12'
