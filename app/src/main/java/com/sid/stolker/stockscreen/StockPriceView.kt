@@ -16,7 +16,6 @@ class StockPriceView(override val containerView: View, private val graphAdapter:
     @SuppressLint("SetTextI18n")
     override fun onChanged(viewData: StockPriceViewData?) {
         if (viewData == null) {
-            tv_stock_name.text = "No Data Available for today right now"
             return /* Can display error state here */
         } else {
             tv_stock_name.text = viewData.stockName
