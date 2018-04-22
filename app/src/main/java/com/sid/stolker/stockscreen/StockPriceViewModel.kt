@@ -131,6 +131,6 @@ class StockPriceViewModel(
     }
 
     companion object {
-        private const val POLLING_TIME = 1000 * 30 * 1L
+        private const val POLLING_TIME = 1000 * 60 * 60L
     }
 }
