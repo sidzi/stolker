@@ -14,17 +14,14 @@ import com.sid.stolker.models.TimeSeriesData
 import java.text.SimpleDateFormat
 import java.util.*
 
-class StockPriceViewModel : ViewModel() {
-    private lateinit var alphaVantageWebService: AlphaVantageWebService
+class StockPriceViewModel(
+        private val alphaVantageWebService: AlphaVantageWebService
+) : ViewModel() {
+
     private var marketClosed = false
     private var cachedStockQuery: String? = null
 
-    companion object {
-        private const val POLLING_TIME = 1000 * 10 * 1L
-    }
-
-    fun initialize(alphaVantageWebService: AlphaVantageWebService): LiveData<StockPriceViewData> {
-        this.alphaVantageWebService = alphaVantageWebService
+    fun getData(): LiveData<StockPriceViewData> {
         return Transformations.switchMap(alphaVantageWebService.pricesData, {
             val viewData = MutableLiveData<StockPriceViewData>()
             viewData.value = transformToViewData(it)
@@ -35,8 +32,7 @@ class StockPriceViewModel : ViewModel() {
     val handler = Handler()
     fun startIntradayPriceLoading(stockName: String) {
         val query = AVQueryBuilder(AVFunctions.TIME_SERIES_INTRADAY, stockName).build()
-
-        if (!isMarketClosed() || query != cachedStockQuery) {
+        if (query != cachedStockQuery) {
             alphaVantageWebService.loadPrice(query)
             cachedStockQuery = query
             handler.removeCallbacksAndMessages(null)
@@ -48,6 +44,8 @@ class StockPriceViewModel : ViewModel() {
                 }
             }
             handler.postDelayed(runnable, POLLING_TIME)
+        } else {
+            alphaVantageWebService.pricesData.value = alphaVantageWebService.pricesData.value
         }
     }
 
@@ -111,5 +109,9 @@ class StockPriceViewModel : ViewModel() {
                 max = high
         }
         return Pair("%.4f".format(max), "%.4f".format(min))
+    }
+
+    companion object {
+        private const val POLLING_TIME = 1000 * 10 * 1L
     }
 }

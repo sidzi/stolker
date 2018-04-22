@@ -24,16 +24,16 @@ class StockPriceActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ticker)
         setSupportActionBar(toolbar)
-        stockPriceViewModel =
-                ViewModelProviders.of(this)
-                        .get(StockPriceViewModel::class.java)
         val alphaVantageWebService =
                 AlphaVantageWebService(
                         RequestPlacer::placeRequest,
                         ALPHA_VANTAGE_API_KEY,
                         RequestPlacer::cancelRequest)
+        stockPriceViewModel =
+                ViewModelProviders.of(this, StockViewModelFactory(alphaVantageWebService))
+                        .get(StockPriceViewModel::class.java)
         val stockPriceView = StockPriceView(cl_ticker_content)
-        stockPriceViewModel.initialize(alphaVantageWebService)
+        stockPriceViewModel.getData()
                 .observe(this, stockPriceView)
         stockPriceViewModel.startIntradayPriceLoading(currentStock)
     }

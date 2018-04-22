@@ -19,8 +19,8 @@ class StockPriceViewModelTest {
 
     @Test
     fun loadIntraDayPrices() {
-        val viewModel = StockPriceViewModel()
-        viewModel.initialize(alphaVantageWebService)
+        val viewModel = StockPriceViewModel(alphaVantageWebService)
+        viewModel.getData()
         viewModel.startIntradayPriceLoading("USA")
         Mockito.verify(alphaVantageWebService, Mockito.atLeastOnce())
                 .loadPrice("?function=TIME_SERIES_INTRADAY&symbol=USA&interval=5min")
