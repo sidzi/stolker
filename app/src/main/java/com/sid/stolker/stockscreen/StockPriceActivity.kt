@@ -4,6 +4,7 @@ import android.app.Activity
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
@@ -34,7 +35,8 @@ class StockPriceActivity : AppCompatActivity() {
                         RequestPlacer::cancelRequest)
 
         val stockViewModelFactory = StockViewModelFactory(alphaVantageWebService,
-                DatabaseManager.getAppDatabaseInstance())
+                DatabaseManager.getAppDatabaseInstance(),
+                Handler())
 
         stockPriceViewModel =
                 ViewModelProviders.of(this, stockViewModelFactory)

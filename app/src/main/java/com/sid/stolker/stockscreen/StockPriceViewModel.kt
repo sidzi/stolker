@@ -17,12 +17,12 @@ import java.util.*
 
 class StockPriceViewModel(
         private val alphaVantageWebService: AlphaVantageWebService,
-        private val appDatabaseInstance: AppDatabase
+        private val appDatabaseInstance: AppDatabase,
+        private val handler: Handler
 ) : ViewModel() {
 
     private var marketClosed = false
     private var cachedStockQuery: String? = null
-    private val handler = Handler()
     private val stockPriceViewData = Transformations.switchMap(alphaVantageWebService.pricesData, {
         val temp = MutableLiveData<StockPriceViewData>()
         val transformedData = transformToViewData(it)
