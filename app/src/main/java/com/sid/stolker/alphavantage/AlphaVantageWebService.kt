@@ -4,6 +4,7 @@ import MoshiSerializer
 import android.arch.lifecycle.MutableLiveData
 import com.android.volley.Response
 import com.sid.stolker.models.StockPriceDataModel
+import com.squareup.moshi.JsonDataException
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KFunction4
 
@@ -17,8 +18,12 @@ class AlphaVantageWebService(
         val requestUrl = "$BASE_URL$getQuery&apikey=$apiKey"
         cancelRequest?.invoke(REQUEST_TAG_LP)
         placeRequest(REQUEST_TAG_LP, requestUrl, Response.Listener {
-            val response = MoshiSerializer.serialize(StockPriceDataModel::class.java, it) as StockPriceDataModel?
-            pricesData.value = response
+            try {
+                val response = MoshiSerializer.serialize(StockPriceDataModel::class.java, it) as StockPriceDataModel?
+                pricesData.value = response
+            } catch (e: JsonDataException) {
+                e.printStackTrace()
+            }
         }, Response.ErrorListener {
             System.out.println(it.message)
         })

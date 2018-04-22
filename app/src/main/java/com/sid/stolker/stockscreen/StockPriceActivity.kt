@@ -12,6 +12,7 @@ import com.sid.stolker.R
 import com.sid.stolker.alphavantage.AlphaVantageWebService
 import com.sid.stolker.alphavantage.Constants.ALPHA_VANTAGE_API_KEY
 import com.sid.stolker.network.RequestPlacer
+import com.sid.stolker.persistence.DatabaseManager
 import com.sid.stolker.persistence.SharedPreferencesLoader
 import com.sid.stolker.settings.SettingsActivity
 import kotlinx.android.synthetic.main.activity_ticker.*
@@ -24,18 +25,22 @@ class StockPriceActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ticker)
         setSupportActionBar(toolbar)
+
         val alphaVantageWebService =
                 AlphaVantageWebService(
                         RequestPlacer::placeRequest,
                         ALPHA_VANTAGE_API_KEY,
                         RequestPlacer::cancelRequest)
+
+        val stockViewModelFactory = StockViewModelFactory(alphaVantageWebService,
+                DatabaseManager.getAppDatabaseInstance())
+
         stockPriceViewModel =
-                ViewModelProviders.of(this, StockViewModelFactory(alphaVantageWebService))
+                ViewModelProviders.of(this, stockViewModelFactory)
                         .get(StockPriceViewModel::class.java)
         val stockPriceView = StockPriceView(cl_ticker_content)
         stockPriceViewModel.getData()
                 .observe(this, stockPriceView)
-
 
         val savedSymbol = SharedPreferencesLoader.getSavedStockSymbol(this)
         startLoading(savedSymbol ?: DEFAULT_SYMBOL)

@@ -11,36 +11,49 @@ import com.sid.stolker.alphavantage.AVQueryBuilder
 import com.sid.stolker.alphavantage.AlphaVantageWebService
 import com.sid.stolker.models.StockPriceDataModel
 import com.sid.stolker.models.TimeSeriesData
+import com.sid.stolker.persistence.AppDatabase
 import java.text.SimpleDateFormat
 import java.util.*
 
 class StockPriceViewModel(
-        private val alphaVantageWebService: AlphaVantageWebService
+        private val alphaVantageWebService: AlphaVantageWebService,
+        private val appDatabaseInstance: AppDatabase
 ) : ViewModel() {
 
     private var marketClosed = false
     private var cachedStockQuery: String? = null
+    private val handler = Handler()
+    private val stockPriceViewData = Transformations.switchMap(alphaVantageWebService.pricesData, {
+        val temp = MutableLiveData<StockPriceViewData>()
+        val transformedData = transformToViewData(it)
+        temp.value = transformedData
+        transformedData?.let {
+            Thread {
+                appDatabaseInstance.stockPriceDao().insert(it)
+            }.start()
+        }
+        temp
+    }) as MutableLiveData
 
     fun getData(): LiveData<StockPriceViewData> {
-        return Transformations.switchMap(alphaVantageWebService.pricesData, {
-            val viewData = MutableLiveData<StockPriceViewData>()
-            viewData.value = transformToViewData(it)
-            viewData
-        })
+        return stockPriceViewData
     }
 
-    val handler = Handler()
     fun startIntradayPriceLoading(stockName: String) {
         val query = AVQueryBuilder(AVFunctions.TIME_SERIES_INTRADAY, stockName).build()
         if (query != cachedStockQuery) {
-            alphaVantageWebService.loadPrice(query)
+            Thread {
+                this.stockPriceViewData.postValue(appDatabaseInstance.stockPriceDao().query(stockName))
+            }.start()
             cachedStockQuery = query
-            handler.removeCallbacksAndMessages(null)
+            alphaVantageWebService.loadPrice(query)
             val runnable = object : Runnable {
                 override fun run() {
-                    if (!isMarketClosed())
+                    if (!isMarketClosed()) {
                         alphaVantageWebService.loadPrice(query)
-                    handler.postDelayed(this, POLLING_TIME)
+                        handler.postDelayed(this, POLLING_TIME)
+                    } else
+                        handler.removeCallbacksAndMessages(null)
                 }
             }
             handler.postDelayed(runnable, POLLING_TIME)
