@@ -105,7 +105,7 @@ class StockPriceViewModel(
     @SuppressLint("SimpleDateFormat")
     private fun stripOtherDays(timeSeries: Map<String, TimeSeriesData>): ArrayList<TimeSeriesData> {
         val dateFormatter = SimpleDateFormat("yyyy-MM-dd")
-        val todayMatcher = /* todo dateFormatter.format(Date())*/"2018-04-20"
+        val todayMatcher = dateFormatter.format(Date())
         val strippedList = ArrayList<TimeSeriesData>()
         for (time in timeSeries) {
             if (time.key.startsWith(todayMatcher))
