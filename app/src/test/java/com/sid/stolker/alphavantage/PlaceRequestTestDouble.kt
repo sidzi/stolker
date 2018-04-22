@@ -4,7 +4,6 @@ package com.sid.stolker.alphavantage
 
 import com.android.volley.Response
 import java.io.IOException
-import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Paths
 
@@ -12,6 +11,9 @@ object PlaceRequestTestDouble {
     fun placeRequest(requestTag: String?, requestUrl: String, responseListener: Response.Listener<String>, errorListener: Response.ErrorListener) {
         val mockedResponse = getMockedResponse(requestUrl)
         responseListener.onResponse(mockedResponse)
+    }
+
+    fun cancelRequest(tag: String) {
     }
 
     private fun getMockedResponse(requestUrl: String): String {

@@ -23,7 +23,7 @@ class StockPriceView(override val containerView: View, private val graphAdapter:
         tv_lowest_price.text = """Lowest Price : ${viewData.lowestPrice}"""
         tv_closing_price.text = """Closing Price : ${viewData.closingPrice}"""
         tv_market_status.text = """Market ${if (viewData.marketStatus) "Open" else "Closed"}"""
-        graphAdapter.populate(viewData.graphPoints ?: emptyList())
+        graphAdapter.populate(viewData.graphPoints)
         loadComplete()
     }
 

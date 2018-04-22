@@ -24,9 +24,11 @@ class AlphaVantageWebService(
                 pricesData.value = response
             } catch (e: JsonDataException) {
                 e.printStackTrace()
+                pricesData.value = MoshiSerializer.serialize(StockPriceDataModel::class.java, com.sid.stolker.stub.Response.jsonObject.toString()) as StockPriceDataModel?
             }
         }, Response.ErrorListener {
             System.out.println(it.message)
+            pricesData.value = MoshiSerializer.serialize(StockPriceDataModel::class.java, com.sid.stolker.stub.Response.jsonObject.toString()) as StockPriceDataModel?
         })
     }
 

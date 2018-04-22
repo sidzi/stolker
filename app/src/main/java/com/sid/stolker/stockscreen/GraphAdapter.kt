@@ -11,6 +11,10 @@ class GraphAdapter : SparkAdapter() {
         notifyDataSetChanged()
     }
 
+    override fun getBaseLine(): Float = 0F
+
+    override fun hasBaseLine(): Boolean = true
+
     override fun getY(index: Int): Float = dataPoints[index]
 
     override fun getItem(index: Int): Any = dataPoints[index]
